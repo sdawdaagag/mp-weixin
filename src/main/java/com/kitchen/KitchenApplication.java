@@ -11,6 +11,6 @@ public class KitchenApplication {
     public static void main(String[] args) {
         SpringApplication.run(KitchenApplication.class, args);
 
-        System.out.println("应用启动成功!");
+        System.out.println("应用启动成功!QQ");
     }
 }
