@@ -11,4 +11,6 @@ public class UserVO {
     private String nickname;
     private String avatar;
     private String token;
+    private String openid;
+    private String familyRole;
 }

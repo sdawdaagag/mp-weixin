@@ -21,6 +21,10 @@ public class SysUser {
 
     private String avatar;
 
+    private String openid;
+
+    private String familyRole;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 

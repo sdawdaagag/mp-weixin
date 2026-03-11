@@ -14,6 +14,12 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+# 微信小程序配置
+wechat:
+  miniapp:
+    appid: wx8e54aabc053cd3cf
+    secret: 738c206852857b8c255f4c96b3018d19
+
 jwt:
   secret: ${JWT_SECRET:KitchenSecretKey2026JWTSecret}
   expiration: ${JWT_EXPIRATION:86400}
