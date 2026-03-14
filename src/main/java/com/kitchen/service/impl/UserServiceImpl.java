@@ -36,6 +36,7 @@ public class UserServiceImpl implements UserService {
     /**
      * 账号密码登录
      * 根据用户名查询用户，校验密码
+     * 支持BCrypt加密密码和明文密码（兼容旧数据）
      * 
      * @param username 用户名
      * @param password 密码（明文）
@@ -52,8 +53,25 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("用户不存在");
         }
 
-        // 使用BCrypt校验密码
-        if (!BCrypt.checkpw(password, user.getPassword())) {
+        String storedPassword = user.getPassword();
+        boolean passwordMatch = false;
+
+        // 1. 先尝试BCrypt校验（新密码格式）
+        if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$")) {
+            passwordMatch = BCrypt.checkpw(password, storedPassword);
+        } else {
+            // 2. 兼容明文密码（旧数据）
+            passwordMatch = password.equals(storedPassword);
+            
+            // 3. 如果明文密码匹配，自动升级为BCrypt加密
+            if (passwordMatch) {
+                user.setPassword(BCrypt.hashpw(password));
+                userMapper.updateById(user);
+                log.info("用户密码已自动升级为BCrypt加密: username={}", username);
+            }
+        }
+
+        if (!passwordMatch) {
             throw new BusinessException("密码错误");
         }
 
