@@ -61,7 +61,7 @@ public class UserController {
     /**
      * 获取当前登录用户信息
      * 
-     * @return 当前用户信息
+     * @return 当前用户信息1
      */
     @GetMapping("/info")
     public Result<UserVO> getCurrentUser() {
