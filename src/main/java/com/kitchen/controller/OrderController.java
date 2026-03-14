@@ -72,6 +72,13 @@ public class OrderController {
         return Result.success();
     }
 
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteOrder(@PathVariable Long id) {
+        Long userId = getCurrentUserIdOrThrow();
+        orderService.deleteOrder(id, userId);
+        return Result.success();
+    }
+
     private Long getCurrentUserIdOrThrow() {
         Long userId = jwtUtil.getCurrentUserId();
         if (userId == null) {

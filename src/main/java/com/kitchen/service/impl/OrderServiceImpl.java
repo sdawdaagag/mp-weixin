@@ -122,6 +122,24 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateById(order);
     }
 
+    @Override
+    public void deleteOrder(Long id, Long userId) {
+        OrderInfo order = orderMapper.selectById(id);
+        if (order == null) {
+            throw new BusinessException("订单不存在");
+        }
+        if (!order.getUserId().equals(userId)) {
+            throw new BusinessException("无权删除该订单");
+        }
+        if (order.getStatus() != 2) {
+            throw new BusinessException("只能删除已完成的订单");
+        }
+        LambdaQueryWrapper<OrderDetail> detailWrapper = new LambdaQueryWrapper<>();
+        detailWrapper.eq(OrderDetail::getOrderId, id);
+        orderDetailMapper.delete(detailWrapper);
+        orderMapper.deleteById(id);
+    }
+
     private List<OrderVO> convertToVOList(List<OrderInfo> orders) {
         if (orders == null || orders.isEmpty()) {
             return Collections.emptyList();

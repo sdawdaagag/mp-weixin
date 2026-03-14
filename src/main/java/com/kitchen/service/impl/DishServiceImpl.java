@@ -10,17 +10,27 @@ import com.kitchen.mapper.DishMapper;
 import com.kitchen.service.DishService;
 import com.kitchen.vo.DishVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 菜品服务实现类
+ */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DishServiceImpl implements DishService {
 
     private final DishMapper dishMapper;
+    private final ObjectMapper objectMapper;
 
     @Override
     public PageResult<DishVO> getDishList(String category, Integer page, Integer size) {
@@ -64,6 +74,20 @@ public class DishServiceImpl implements DishService {
         dish.setCookTime(dto.getCookTime());
         dish.setStatus(0);
         dish.setSortOrder(0);
+        
+        // 处理多图片
+        if (dto.getImages() != null && !dto.getImages().isEmpty()) {
+            try {
+                dish.setImages(objectMapper.writeValueAsString(dto.getImages()));
+                // 设置第一张图片为封面
+                if (!StringUtils.hasText(dto.getImageUrl()) && !dto.getImages().isEmpty()) {
+                    dish.setImageUrl(dto.getImages().get(0));
+                }
+            } catch (Exception e) {
+                log.error("序列化图片列表失败", e);
+            }
+        }
+        
         dishMapper.insert(dish);
         return dish.getId();
     }
@@ -80,6 +104,20 @@ public class DishServiceImpl implements DishService {
         dish.setCategory(dto.getCategory());
         dish.setTaste(dto.getTaste());
         dish.setCookTime(dto.getCookTime());
+        
+        // 处理多图片
+        if (dto.getImages() != null && !dto.getImages().isEmpty()) {
+            try {
+                dish.setImages(objectMapper.writeValueAsString(dto.getImages()));
+                // 设置第一张图片为封面
+                if (!StringUtils.hasText(dto.getImageUrl()) && !dto.getImages().isEmpty()) {
+                    dish.setImageUrl(dto.getImages().get(0));
+                }
+            } catch (Exception e) {
+                log.error("序列化图片列表失败", e);
+            }
+        }
+        
         dishMapper.updateById(dish);
     }
 
@@ -102,6 +140,9 @@ public class DishServiceImpl implements DishService {
         dishMapper.updateById(dish);
     }
 
+    /**
+     * 将实体转换为VO
+     */
     private DishVO convertToVO(DishMenu dish) {
         DishVO vo = new DishVO();
         vo.setId(dish.getId());
@@ -112,6 +153,23 @@ public class DishServiceImpl implements DishService {
         vo.setTaste(dish.getTaste());
         vo.setCookTime(dish.getCookTime());
         vo.setStatus(dish.getStatus());
+        
+        // 解析多图片JSON
+        if (StringUtils.hasText(dish.getImages())) {
+            try {
+                List<String> images = objectMapper.readValue(dish.getImages(), new TypeReference<List<String>>() {});
+                vo.setImages(images);
+            } catch (Exception e) {
+                log.error("解析图片列表失败", e);
+                vo.setImages(Collections.emptyList());
+            }
+        } else if (StringUtils.hasText(dish.getImageUrl())) {
+            // 兼容旧数据，将单张图片转为列表
+            vo.setImages(Collections.singletonList(dish.getImageUrl()));
+        } else {
+            vo.setImages(Collections.emptyList());
+        }
+        
         return vo;
     }
 }

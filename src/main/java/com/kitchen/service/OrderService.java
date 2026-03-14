@@ -15,4 +15,6 @@ public interface OrderService {
     OrderVO getOrderById(Long id);
 
     void updateStatus(Long id, Integer status);
+
+    void deleteOrder(Long id, Long userId);
 }
