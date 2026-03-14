@@ -1,6 +1,5 @@
 package com.kitchen.service.impl;
 
-import cn.hutool.crypto.digest.BCrypt;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.kitchen.dto.LocationDTO;
 import com.kitchen.dto.LoginDTO;
@@ -11,6 +10,7 @@ import com.kitchen.exception.BusinessException;
 import com.kitchen.mapper.UserMapper;
 import com.kitchen.service.UserLocationService;
 import com.kitchen.service.UserService;
+import com.kitchen.util.AesUtil;
 import com.kitchen.util.JwtUtil;
 import com.kitchen.vo.UserVO;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +32,12 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
     private final UserLocationService userLocationService;
+    private final AesUtil aesUtil;
 
     /**
      * 账号密码登录
      * 根据用户名查询用户，校验密码
-     * 支持BCrypt加密密码和明文密码（兼容旧数据）
+     * 使用AES对称加密
      * 
      * @param username 用户名
      * @param password 密码（明文）
@@ -53,25 +54,8 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("用户不存在");
         }
 
-        String storedPassword = user.getPassword();
-        boolean passwordMatch = false;
-
-        // 1. 先尝试BCrypt校验（新密码格式）
-        if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$")) {
-            passwordMatch = BCrypt.checkpw(password, storedPassword);
-        } else {
-            // 2. 兼容明文密码（旧数据）
-            passwordMatch = password.equals(storedPassword);
-            
-            // 3. 如果明文密码匹配，自动升级为BCrypt加密
-            if (passwordMatch) {
-                user.setPassword(BCrypt.hashpw(password));
-                userMapper.updateById(user);
-                log.info("用户密码已自动升级为BCrypt加密: username={}", username);
-            }
-        }
-
-        if (!passwordMatch) {
+        // 使用AES校验密码
+        if (!aesUtil.verify(password, user.getPassword())) {
             throw new BusinessException("密码错误");
         }
 
@@ -109,7 +93,7 @@ public class UserServiceImpl implements UserService {
             user.setAvatar(dto.getAvatarUrl());
             user.setRole(0); // 普通用户角色
             user.setUsername("wx_" + System.currentTimeMillis()); // 生成唯一用户名
-            user.setPassword(BCrypt.hashpw("123456")); // 设置默认密码
+            user.setPassword(aesUtil.encrypt("123456")); // 设置默认密码（AES加密）
             userMapper.insert(user);
             log.info("微信登录创建新用户: openid={}, nickname={}", openid, user.getNickname());
         } else {
