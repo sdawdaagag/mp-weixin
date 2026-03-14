@@ -127,14 +127,22 @@ public class UserController {
      * 可设置: 爸爸、妈妈、老婆
      * 
      * @param id 用户ID
-     * @param familyRole 家庭成员角色
+     * @param
      * @return 成功响应
      */
     @PutMapping("/{id}/family-role")
-    public Result<Void> setFamilyRole(@PathVariable Long id, @RequestParam String familyRole) {
+    public Result<Void> setFamilyRole(@PathVariable Long id, @RequestBody FamilyRoleRequest request) {
         assertAdmin();
-        userService.setFamilyRole(id, familyRole);
+        userService.setFamilyRole(id, request.getFamilyRole());
         return Result.success();
+    }
+
+    /**
+     * 家庭成员角色请求DTO
+     */
+    @lombok.Data
+    public static class FamilyRoleRequest {
+        private String familyRole;
     }
 
     /**
