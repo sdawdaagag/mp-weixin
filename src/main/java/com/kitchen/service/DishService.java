@@ -6,7 +6,7 @@ import com.kitchen.vo.DishVO;
 
 public interface DishService {
 
-    PageResult<DishVO> getDishList(String category, Integer page, Integer size);
+    PageResult<DishVO> getDishList(String category, Integer page, Integer size, Integer status);
 
     DishVO getDishById(Long id);
 
@@ -17,4 +17,6 @@ public interface DishService {
     void deleteDish(Long id);
 
     void updateStatus(Long id, Integer status);
+
+    void updateRecommend(Long id, Integer isRecommend);
 }

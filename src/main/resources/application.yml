@@ -28,6 +28,10 @@ jwt:
 aes:
   key: KitchenAesKey2026
 
+# 高德地图配置
+gaode:
+  key: 9829fc766c4d27e862fb2cf21c34e45c
+
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:8080}

@@ -33,10 +33,13 @@ public class DishServiceImpl implements DishService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public PageResult<DishVO> getDishList(String category, Integer page, Integer size) {
+    public PageResult<DishVO> getDishList(String category, Integer page, Integer size, Integer status) {
         LambdaQueryWrapper<DishMenu> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(DishMenu::getDeleted, 0)
-               .in(DishMenu::getStatus, 1, 2);
+        wrapper.eq(DishMenu::getDeleted, 0);
+        
+        if (status != null) {
+            wrapper.eq(DishMenu::getStatus, status);
+        }
 
         if (StringUtils.hasText(category)) {
             wrapper.eq(DishMenu::getCategory, category);
@@ -140,6 +143,20 @@ public class DishServiceImpl implements DishService {
         dishMapper.updateById(dish);
     }
 
+    @Override
+    public void updateRecommend(Long id, Integer isRecommend) {
+        if (isRecommend == null || (isRecommend != 0 && isRecommend != 1)) {
+            throw new BusinessException("推荐状态非法");
+        }
+
+        DishMenu dish = dishMapper.selectById(id);
+        if (dish == null) {
+            throw new BusinessException("菜品不存在");
+        }
+        dish.setIsRecommend(isRecommend);
+        dishMapper.updateById(dish);
+    }
+
     /**
      * 将实体转换为VO
      */
@@ -153,6 +170,7 @@ public class DishServiceImpl implements DishService {
         vo.setTaste(dish.getTaste());
         vo.setCookTime(dish.getCookTime());
         vo.setStatus(dish.getStatus());
+        vo.setIsRecommend(dish.getIsRecommend());
         
         // 解析多图片JSON
         if (StringUtils.hasText(dish.getImages())) {

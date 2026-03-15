@@ -28,8 +28,9 @@ public class DishController {
     public Result<PageResult<DishVO>> list(
             @RequestParam(required = false) String category,
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
-        PageResult<DishVO> result = dishService.getDishList(category, page, size);
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) Integer status) {
+        PageResult<DishVO> result = dishService.getDishList(category, page, size, status);
         return Result.success(result);
     }
 
@@ -67,10 +68,22 @@ public class DishController {
         return Result.success();
     }
 
+    @PutMapping("/{id}/recommend")
+    public Result<Void> updateRecommend(@PathVariable Long id, @RequestBody RecommendDTO dto) {
+        assertAdmin();
+        dishService.updateRecommend(id, dto.getIsRecommend());
+        return Result.success();
+    }
+
     private void assertAdmin() {
         UserVO currentUser = userService.getCurrentUser();
         if (currentUser.getRole() == null || currentUser.getRole() != 1) {
             throw new BusinessException("仅大厨可操作");
         }
     }
+}
+
+@lombok.Data
+class RecommendDTO {
+    private Integer isRecommend;
 }

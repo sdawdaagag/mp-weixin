@@ -56,6 +56,11 @@ public class DishMenu {
     private Integer status;
 
     /**
+     * 是否推荐：0-否，1-是
+     */
+    private Integer isRecommend;
+
+    /**
      * 排序
      */
     private Integer sortOrder;

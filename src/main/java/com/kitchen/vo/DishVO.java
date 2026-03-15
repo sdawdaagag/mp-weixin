@@ -18,4 +18,5 @@ public class DishVO {
     private String taste;
     private Integer cookTime;
     private Integer status;
+    private Integer isRecommend;
 }
