@@ -77,6 +77,7 @@ public class DishServiceImpl implements DishService {
         dish.setCookTime(dto.getCookTime());
         dish.setStatus(0);
         dish.setSortOrder(0);
+        dish.setIsRecommend(dto.getIsRecommend() != null ? dto.getIsRecommend() : 0);
         
         // 处理多图片
         if (dto.getImages() != null && !dto.getImages().isEmpty()) {
@@ -107,6 +108,10 @@ public class DishServiceImpl implements DishService {
         dish.setCategory(dto.getCategory());
         dish.setTaste(dto.getTaste());
         dish.setCookTime(dto.getCookTime());
+        
+        if (dto.getIsRecommend() != null) {
+            dish.setIsRecommend(dto.getIsRecommend());
+        }
         
         // 处理多图片
         if (dto.getImages() != null && !dto.getImages().isEmpty()) {

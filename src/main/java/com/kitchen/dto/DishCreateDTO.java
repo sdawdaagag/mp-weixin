@@ -31,4 +31,9 @@ public class DishCreateDTO {
 
     @Min(value = 1, message = "烹饪时间必须大于0")
     private Integer cookTime;
+
+    /**
+     * 是否推荐：0-否，1-是
+     */
+    private Integer isRecommend;
 }
