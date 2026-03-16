@@ -1,14 +1,20 @@
 package com.kitchen.dto;
 
 import lombok.Data;
-import java.math.BigDecimal;
 
+import javax.validation.constraints.NotNull;
+
+/**
+ * 位置信息DTO
+ */
 @Data
 public class LocationDTO {
 
-    private BigDecimal latitude;
+    @NotNull(message = "纬度不能为空")
+    private Double latitude;
 
-    private BigDecimal longitude;
+    @NotNull(message = "经度不能为空")
+    private Double longitude;
 
     private String address;
 }
